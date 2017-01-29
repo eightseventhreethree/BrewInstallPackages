@@ -27,6 +27,10 @@ declare -a LIST_PACKAGE=(
 'tcptraceroute'
 'ack'
 'odt2txt'
+'parallel'
+'rsync'
+'perl'
+'googler'
 )
 IFS=''
 for PACKAGE in "${LIST_PACKAGE[@]}"
