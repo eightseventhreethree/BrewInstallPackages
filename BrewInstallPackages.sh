@@ -31,6 +31,8 @@ declare -a LIST_PACKAGE=(
 'rsync'
 'perl'
 'googler'
+'gawk'
+'git'
 )
 IFS=''
 for PACKAGE in "${LIST_PACKAGE[@]}"
