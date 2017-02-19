@@ -1,4 +1,10 @@
 #!/bin/bash
+OS_var=$(uname)
+
+if [[ $OS_var = "Linux" ]]; then
+
+else
+    brew update
 which brew
 if [[ $? != 0 ]]; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
