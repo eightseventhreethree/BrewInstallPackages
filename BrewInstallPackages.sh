@@ -1,7 +1,16 @@
 #!/bin/bash
+OS_var=$(uname)
 which brew
 if [[ $? != 0 ]]; then
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	if [[ "$OS_var" == "Linux" ]]; then
+		echo "Install Linux Brew"
+		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install)"
+		PATH="$HOME/.linuxbrew/bin:$PATH"
+		echo 'export PATH="$HOME/.linuxbrew/bin:$PATH"' >>~/.bash_profile
+	elif [[ "$OS_var" == "Darwin" ]]; then
+		echo "Install OSX Brew"
+    		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	fi
 else
     brew update
 fi
