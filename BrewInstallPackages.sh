@@ -43,6 +43,7 @@ declare -a LIST_PACKAGE=(
 'gawk'
 'git'
 'carthage'
+'maven'
 )
 IFS=''
 for PACKAGE in "${LIST_PACKAGE[@]}"
