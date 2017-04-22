@@ -1,15 +1,50 @@
 #!/bin/bash
 OS_var=$(uname)
+distro_var=$(cat /etc/*-release | head -n1) 
+
+#functions called throughout
+function install_brew_osx() {
+	echo "Installing OSX Brew"
+	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+}
+
+function install_brew_linux() { 
+	echo "Install Linux Brew"
+	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install)"
+	PATH="$HOME/.linuxbrew/bin:$PATH"
+	echo 'export PATH="$HOME/.linuxbrew/bin:$PATH"' >>~/.bashrc
+}
+
+function install_ruby_apt() {
+	sudo apt-get install ruby
+}
+
+function install_ruby_yum() {
+	sudo yum install ruby
+}
+which ruby
+if [[ $? != 0 ]]; then 
+	if [[ "$OS_var" == "Linux" ]]; then
+		if [[ "$distro_var" =~ ..Ubuntu ]]; then
+			install_ruby_apt
+		elif [[ "$distro_var" =~ CentOS.. ]]; then
+			install_ruby_yum
+		else
+			echo "Sorry you will need to install Ruby manually"
+			echo "Ex. sudo dnf install ruby"
+			exit
+		fi
+	else
+		echo "MacOS comes with Ruby"
+	fi
+fi
+
 which brew
 if [[ $? != 0 ]]; then
 	if [[ "$OS_var" == "Linux" ]]; then
-		echo "Install Linux Brew"
-		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install)"
-		PATH="$HOME/.linuxbrew/bin:$PATH"
-		echo 'export PATH="$HOME/.linuxbrew/bin:$PATH"' >>~/.bash_profile
+		install_brew_linux
 	elif [[ "$OS_var" == "Darwin" ]]; then
-		echo "Install OSX Brew"
-    		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+		install_brew_osx
 	fi
 else
     brew update
