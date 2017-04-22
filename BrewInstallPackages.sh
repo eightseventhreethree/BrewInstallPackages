@@ -12,9 +12,9 @@ function install_brew_osx() {
 function install_brew_linux() { 
 	echo "Install Linux Brew"
 	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install)"
-	echo 'export PATH="$HOME/.linuxbrew/bin:$PATH"' >>~/.bash_profile
-	echo 'export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"' >>~/.bash_profile
-	echo 'export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"' >>~/.bash_profile
+	echo 'export PATH="$HOME/.linuxbrew/bin:$PATH"' >>~/.bashrc
+	echo 'export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"' >>~/.bashrc
+	echo 'export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"' >>~/.bashrc
 }
 
 function install_ruby_apt() {
