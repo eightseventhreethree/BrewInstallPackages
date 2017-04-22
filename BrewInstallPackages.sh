@@ -11,7 +11,6 @@ function install_brew_osx() {
 
 function install_brew_linux() { 
 	echo "Install Linux Brew"
-	sudo apt install linuxbrew-wrapper
 	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install)"
 	echo 'export PATH="$HOME/.linuxbrew/bin:$PATH"' >>~/.bash_profile
 	echo 'export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"' >>~/.bash_profile
