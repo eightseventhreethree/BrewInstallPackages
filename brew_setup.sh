@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
-#global variables
-OS_var=$(uname)
-distro_var=$(cat /etc/os-release | head -n1)
+#globals
+OPERATING_SYSTEM=$(uname)
+DISTRIBUTION=$(head -n1 /etc/os-release)
+RUNASUSER=$(whoami)
 
-#functions called throughout
+#functions
+function check_base_deps() {
+  if ! which curl >/dev/null; then
+    echo "Please install curl"; exit 1
+  fi
+  if ! which git >/dev/null; then
+    echo "Please install git"; exit 1
+  fi
+}
+
 function install_brew_osx() {
   echo "Installing OSX Brew"
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -17,16 +27,25 @@ function install_brew_linux() {
     echo 'export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"' >>~/.bashrc
     echo 'export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"' >>~/.bashrc
   fi
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install)"
+  RBEXEC=$(which ruby)
+  "${RBEXEC}" -e "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install)"
   source ~/.bashrc
+  eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
   echo "Finished function: install_brew_linux"
 }
 
 function install_apt() {
-  echo "Installing required packages: "
-  sudo apt-get install ruby -y
-  sudo apt-get install build-essential -y
-  sudo apt install linuxbrew-wrapper -y
+  packages=('ruby' 'build-essential' 'linuxbrew-wrapper')
+  echo "Installing required packages: ${packages[@]}"
+  install_cmd="apt-get install "
+  if ! [[ "root" =~ "${RUNASUSER}" ]]; then
+    install_cmd="sudo ${install_cmd}"
+  fi
+  for package in "${packages[@]}"; do
+    cmd="${install_cmd} ${package} -y"
+    output=$(${cmd})
+    echo "install output ${output}"
+  done
   echo "Finished function: install_apt"
 }
 
@@ -40,7 +59,6 @@ function install_yum() {
 function get_package_list() {
   echo "Getting package list from site."
   DOWNLOAD_LIST_PACKAGE=$(curl -s -XGET https://thisisrush.wordpress.com/brew-packages/ | grep -vi 'site uses cookies' | grep '<br />' | awk -F '<' '{print $1","}')
-  #echo "$DOWNLOAD_LIST_PACKAGE"
   declare -a LIST_PACKAGE
   IFS=','
   LIST_PACKAGE=($DOWNLOAD_LIST_PACKAGE)
@@ -49,10 +67,10 @@ function get_package_list() {
 
 function check_or_install_ruby() {
   if ! ruby --version ; then
-    if [[ "$OS_var" == "Linux" ]]; then
-      if [[ "$distro_var" =~ ..Ubuntu ]]; then
+    if [[ "$OPERATING_SYSTEM" == "Linux" ]]; then
+      if [[ "$DISTRIBUTION" =~ ..Ubuntu ]]; then
         install_apt
-      elif [[ "$distro_var" =~ CentOS.. ]]; then
+      elif [[ "$DISTRIBUTION" =~ CentOS.. ]]; then
         install_yum
       else
         echo "Sorry you will need to install Ruby and other required packages manually\nEx. sudo dnf install ruby"
@@ -66,9 +84,9 @@ function check_or_install_ruby() {
 
 function check_or_install_brew() {
   if ! which brew >/dev/null; then
-    if [[ "$OS_var" == "Linux" ]]; then
+    if [[ "${OPERATING_SYSTEM}" == "Linux" ]]; then
       install_brew_linux
-    elif [[ "$OS_var" == "Darwin" ]]; then
+    elif [[ "${OPERATING_SYSTEM}" == "Darwin" ]]; then
       install_brew_osx
     fi
   else
@@ -111,12 +129,14 @@ function install_packages() {
     )
     IFS=''
   fi
-  for PACKAGE in "${LIST_PACKAGE[@]}"; do
-    OUTPUT=$(brew install "$PACKAGE" 2>&1)
-    echo "$OUTPUT" | grep -i :
+  for package in "${LIST_PACKAGE[@]}"; do
+    output=$(brew install "$package" 2>&1)
+    echo "$output" | grep -i :
   done
 }
+
 function main() {
+  check_base_deps
   check_or_install_ruby
   check_or_install_brew
   install_packages
