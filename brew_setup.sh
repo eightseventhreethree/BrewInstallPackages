@@ -58,10 +58,10 @@ function install_yum() {
 
 function get_package_list() {
   echo "Getting package list from site."
-  DOWNLOAD_LIST_PACKAGE=$(curl -s -XGET https://thisisrush.wordpress.com/brew-packages/ | grep -vi 'site uses cookies' | grep '<br />' | awk -F '<' '{print $1","}')
+  DOWNLOAD_LIST_PACKAGE=$(curl -s -L https://gist.githubusercontent.com/eightseventhreethree/e76c315843a7c78fd26e04326a405f3c/raw/packages.txt | awk -F '\n' '{print $1","}')
   declare -a LIST_PACKAGE
   IFS=','
-  LIST_PACKAGE=($DOWNLOAD_LIST_PACKAGE)
+  LIST_PACKAGE=(${DOWNLOAD_LIST_PACKAGE})
   echo "The number of packages found were: ${#LIST_PACKAGE[@]}"
 }
 
